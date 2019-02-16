@@ -115,21 +115,6 @@ static void initialize(void) {
 		SD_Init();
 	}
 	FAT_InitFiles(false, 0);
-	//romFile = getFileFromCluster(fileCluster);
-	//buildFatTableCache(&romFile, 0);
-	#ifdef DEBUG	
-	if (romFile->fatTableCached) {
-		nocashMessage("fat table cached");
-	} else {
-		nocashMessage("fat table not cached"); 
-	}
-	#endif
-	
-	/*if (saveCluster > 0) {
-		savFile = getFileFromCluster(saveCluster);
-	} else {
-		savFile.firstCluster = CLUSTER_FREE;
-	}*/
 		
 	#ifdef DEBUG		
 	aFile myDebugFile = getBootFileCluster("NDSBTSRP.LOG", 3);
