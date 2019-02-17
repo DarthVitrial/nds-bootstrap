@@ -352,6 +352,7 @@ static void runCardEngineCheckResume(void) {
 		{
 			if(resume_cardRead_arm9()) {
 				*(vu32*)(0x027FFB18) = 0;
+				IPC_SendSync(0xEE24);
 			} 
 		}
   		unlockMutex(&cardEgnineCommandMutex);

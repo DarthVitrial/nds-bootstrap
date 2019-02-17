@@ -251,6 +251,13 @@ code_handler_start_fifo:
 	@ exit after return
 	b	exit
 _blx_r3_stub_start_fifo:
-	bx	r3	
+	bx	r3
+
+exit:
+	pop   	{r0-r12} 
+	pop  	{lr}
+	bx  lr
+
+.pool	
 
 card_engine_end:

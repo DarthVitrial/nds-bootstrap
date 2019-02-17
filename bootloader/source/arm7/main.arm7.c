@@ -581,9 +581,9 @@ int arm7_main(void) {
     
     aFile myDebugFile = getBootFileCluster("NDSBTSRP.LOG", 0);
     
-    /*if (logging) {
+    if (logging) {
     	enableDebug(myDebugFile);
-	}*/
+	}
 
 	// ROM file
 	aFile* romFile = (aFile*)ROM_FILE_LOCATION;
@@ -675,7 +675,7 @@ int arm7_main(void) {
 			(isSdk5(moduleParams) ? cardengine_arm9_sdk5_bin_size : cardengine_arm9_bin_size));
 	increaseLoadBarLength();
 
-    ((cardengineArm7*)CARDENGINE_ARM7_LOCATION)->debugCluster = myDebugFile.firstCluster;
+
 
 	//
 	// 5 dots
@@ -756,6 +756,8 @@ int arm7_main(void) {
 	if (!dsiModeConfirmed) {
 		REG_SCFG_EXT &= ~(1UL << 31); // Lock SCFG
 	}
+    
+    ((cardengineArm7*)CARDENGINE_ARM7_LOCATION)->debugCluster = myDebugFile.currentCluster;
 
 	nocashMessage("Starting the NDS file...");
 	startBinary_ARM7(arm9StartAddress);
