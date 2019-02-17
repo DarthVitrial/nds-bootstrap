@@ -34,6 +34,7 @@ static u32* hookInterruptHandler(const u32* start, size_t size) {
 		handlerStartSig, 5
 	);
 	if (!addr) {
+        dbg_printf("ERR_HOOK_9 : handlerStartSig\n");
 		return NULL;
 	}
 
@@ -43,6 +44,7 @@ static u32* hookInterruptHandler(const u32* start, size_t size) {
 		handlerEndSig, 4
 	);
 	if (!addr) {
+        dbg_printf("ERR_HOOK_9 : handlerEndSig\n");
 		return NULL;
 	}
 
@@ -69,7 +71,7 @@ int hookNdsRetailArm9(
 	u32 enableExceptionHandler,
 	u32 consoleModel
 ) {
-	nocashMessage("hookNdsRetailArm9");
+	dbg_printf("hookNdsRetailArm9\n");
 
 	ce9->moduleParams           = moduleParams;
 	ce9->ROMinRAM               = ROMinRAM;
@@ -77,10 +79,10 @@ int hookNdsRetailArm9(
 	ce9->enableExceptionHandler = enableExceptionHandler;
 	ce9->consoleModel           = consoleModel;
     
-    u32* hookLocation = hookInterruptHandler((u32*)ndsHeader->arm9destination, ndsHeader->arm9binarySize);
+    u32* hookLocation = hookInterruptHandler((u32*)ndsHeader->arm9destination, 0x00300000);
     
     if (!hookLocation) {
-		nocashMessage("ERR_HOOK");
+		dbg_printf("ERR_HOOK_9\n");
 		return ERR_HOOK;
 	}
     
@@ -98,6 +100,6 @@ int hookNdsRetailArm9(
 		*ipcSyncHandler = ce9->patches->fifoHandler;
 	}
 
-	nocashMessage("ERR_NONE");
+	dbg_printf("NO_ERROR_HOOK_9\n");
 	return ERR_NONE;
 }

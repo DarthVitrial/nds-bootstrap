@@ -255,7 +255,7 @@ int hookNdsRetailArm7(
 	u32 romread_LED,
 	u32 gameSoftReset
 ) {
-	nocashMessage("hookNdsRetailArm7");
+	dbg_printf("hookNdsRetailArm7\n");
 
 	u32* hookLocation = hookInterruptHandler((u32*)ndsHeader->arm7destination, ndsHeader->arm7binarySize);
 	//u32* hookAccel = NULL;
@@ -308,7 +308,7 @@ int hookNdsRetailArm7(
 	}
 
 	if (!hookLocation) {
-		nocashMessage("ERR_HOOK");
+		dbg_printf("ERR_HOOK_7\n");
 		return ERR_HOOK;
 	}
 
@@ -365,6 +365,6 @@ int hookNdsRetailArm7(
 		*ipcSyncHandler = ce7->patches->fifoHandler;
 	}
 
-	nocashMessage("ERR_NONE");
+	dbg_printf("NO_ERROR_HOOK_7\n");
 	return ERR_NONE;
 }
