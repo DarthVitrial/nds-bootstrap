@@ -92,7 +92,7 @@ extern u32 romread_LED;
 extern u32 gameSoftReset;
 //extern u32 forceSleepPatch;
 extern u32 soundFix;
-//extern u32 logging;
+extern u32 logging;
 
 static u32 ce9Location = CARDENGINE_ARM9_LOCATION;
 
@@ -578,6 +578,12 @@ int arm7_main(void) {
 		nocashMessage("!FAT_InitFiles");
 		return -1;
 	}
+    
+    aFile myDebugFile = getBootFileCluster("NDSBTSRP.LOG", 0);
+    
+    /*if (logging) {
+    	enableDebug(myDebugFile);
+	}*/
 
 	// ROM file
 	aFile* romFile = (aFile*)ROM_FILE_LOCATION;
@@ -634,7 +640,8 @@ int arm7_main(void) {
 	ensureBinaryDecompressed(&dsiHeaderTemp.ndshdr, moduleParams, foundModuleParams);
 
 	// If possible, set to load ROM into RAM
-	u32 ROMinRAM = isROMLoadableInRAM(&dsiHeaderTemp.ndshdr, moduleParams, consoleModel);
+    // u32 ROMinRAM = isROMLoadableInRAM(&dsiHeaderTemp.ndshdr, moduleParams, consoleModel);
+	u32 ROMinRAM = 0;
 
 	vu32* arm9StartAddress = storeArm9StartAddress(&dsiHeaderTemp.ndshdr, moduleParams);
 	ndsHeader = loadHeader(&dsiHeaderTemp, moduleParams, dsiModeConfirmed);
@@ -667,6 +674,8 @@ int arm7_main(void) {
 			(u32*)(isSdk5(moduleParams) ? cardengine_arm9_sdk5_bin : cardengine_arm9_bin),
 			(isSdk5(moduleParams) ? cardengine_arm9_sdk5_bin_size : cardengine_arm9_bin_size));
 	increaseLoadBarLength();
+
+    ((cardengineArm7*)CARDENGINE_ARM7_LOCATION)->debugCluster = myDebugFile.firstCluster;
 
 	//
 	// 5 dots

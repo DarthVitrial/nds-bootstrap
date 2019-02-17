@@ -52,6 +52,7 @@ extern int unlockMutex(int* addr);
 extern vu32* volatile cardStruct;
 extern u32 fileCluster;
 extern u32 saveCluster;
+extern u32 debugCluster;
 extern module_params_t* moduleParams;
 extern u32 language;
 extern u32 gottenSCFGExt;
@@ -117,8 +118,7 @@ static void initialize(void) {
 	FAT_InitFiles(false, 0);
 		
 	#ifdef DEBUG		
-	aFile myDebugFile = getBootFileCluster("NDSBTSRP.LOG", 3);
-	enableDebug(myDebugFile);
+	enableDebug(getFileFromCluster(debugCluster));
 	dbg_printf("logging initialized\n");		
 	dbg_printf("sdk version :");
 	dbg_hexa(moduleParams->sdk_version);		

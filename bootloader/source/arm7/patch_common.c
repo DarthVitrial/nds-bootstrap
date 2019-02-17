@@ -26,8 +26,6 @@
 #include "common.h"
 #include "debug_file.h"
 
-extern bool logging;
-
 void patchBinary(const tNDSHeader* ndsHeader) {
 	const char* romTid = getRomTid(ndsHeader);
 
@@ -137,9 +135,6 @@ u32 patchCardNds(
 	u32 saveFileCluster,
 	u32 saveSize
 ) {
-	if (logging) {
-		enableDebug(getBootFileCluster("NDSBTSRP.LOG", 0));
-	}
 
 	dbg_printf("patchCardNds\n\n");
 

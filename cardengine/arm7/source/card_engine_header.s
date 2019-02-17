@@ -14,6 +14,7 @@
 .global patches_offset
 .global moduleParams
 .global fileCluster
+.global debugCluster
 .global saveCluster
 .global language
 .global gottenSCFGExt
@@ -46,6 +47,8 @@ intr_fifo_orig_return:
 moduleParams:
 	.word	0x00000000
 fileCluster:
+	.word	0x00000000
+debugCluster:
 	.word	0x00000000
 cardStruct:
 	.word	0x00000000
