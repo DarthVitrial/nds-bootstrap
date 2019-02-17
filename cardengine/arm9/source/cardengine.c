@@ -54,7 +54,9 @@ extern u32 ROMinRAM;
 extern u32 dsiMode;
 extern u32 enableExceptionHandler;
 extern u32 consoleModel;
-extern u32 asyncPrefetch;
+extern u32* irqTable;
+extern u32 intr_fifo_orig_return;
+extern void* fifoHandler;
 
 extern u32 needFlushDCCache;
 
@@ -128,6 +130,16 @@ static void waitForArm7(void) {
 static bool checkArm7(void) {
     IPC_SendSync(0xEE24);
 	return (sharedAddr[4] == (vu32)0);
+}
+
+static bool IPC_SYNC_hooked = false;
+static void hookIPC_SYNC(void) {
+    if (!IPC_SYNC_hooked) {
+        u32* ipcSyncHandler = irqTable + 16;
+        intr_fifo_orig_return   = *ipcSyncHandler;
+        *ipcSyncHandler = fifoHandler;
+        IPC_SYNC_hooked = true;
+    }
 }
 
 static void enableIPCSYNC(void) {
@@ -385,10 +397,23 @@ void continueCardReadDma() {
 	vu32* volatile cardStruct = cardStruct0;
     u32 commandRead;
     
+    #ifdef DEBUG
+	// Send a log command for debug purpose
+	// -------------------------------------
+	commandRead = 0x026ff800;
+
+	sharedAddr[0] = 0;
+	sharedAddr[1] = 0;
+	sharedAddr[2] = 0;
+	sharedAddr[3] = 4;
+	sharedAddr[4] = commandRead;
+
+	waitForArm7();
+	// -------------------------------------
+	#endif
+    
     if(dmaReadOnArm7) {
         if(!checkArm7()) return;
-        
-
         
         dmaReadOnArm7 = false;
         
@@ -407,7 +432,7 @@ void continueCardReadDma() {
 		sharedAddr[0] = src;
 		sharedAddr[1] = dst;
 		sharedAddr[2] = len;
-		sharedAddr[3] = true;
+		sharedAddr[3] = 3;
 		sharedAddr[4] = commandRead;
 
 		waitForArm7();
@@ -517,7 +542,7 @@ static inline int startCardReadDma(vu32* volatile cardStruct, u8* dst, u32 src, 
 	vu8* buffer = getCacheAddress(slot);
 	// Read max CACHE_READ_SIZE via the main RAM cache
 	if (slot == -1) {
-        #ifdef DEBUG
+        /*#ifdef DEBUG
 		// Send a log command for debug purpose
 		// -------------------------------------
 		commandRead = 0x026ff800;
@@ -530,7 +555,7 @@ static inline int startCardReadDma(vu32* volatile cardStruct, u8* dst, u32 src, 
 
 		waitForArm7();
 		// -------------------------------------
-		#endif
+		#endif*/
     
 		// Send a command to the ARM7 to fill the RAM cache
         commandRead = 0x025FFB08;
@@ -538,7 +563,8 @@ static inline int startCardReadDma(vu32* volatile cardStruct, u8* dst, u32 src, 
 		slot = allocateCacheSlot();
 
 		buffer = getCacheAddress(slot);
-        
+    
+        hookIPC_SYNC();
         enableIPCSYNC();
         
 		// Write the command
@@ -595,7 +621,7 @@ bool cardReadDma() {
     
     if(dma > 0 
         && dma <= 4 
-        && func != NULL
+        //&& func != NULL
         && len > 0
         && !(((int)dst) & 31)
         // test data not in ITCM
@@ -608,7 +634,7 @@ bool cardReadDma() {
         ) {
         isDma = true;
         
-        #ifdef DEBUG
+        /*#ifdef DEBUG
 		// Send a log command for debug purpose
 		// -------------------------------------
 		u32 commandRead = 0x026ff800;
@@ -621,7 +647,7 @@ bool cardReadDma() {
 
 		waitForArm7();
 		// -------------------------------------
-		#endif
+		#endif*/
         
         if (src == 0) {
     		// If ROM read location is 0, do not proceed.
@@ -641,7 +667,7 @@ bool cardReadDma() {
         return true;
         //return false;                
     } else {
-        #ifdef DEBUG
+        /*#ifdef DEBUG
 		// Send a log command for debug purpose
 		// -------------------------------------
 		u32 commandRead = 0x026ff800;
@@ -654,7 +680,7 @@ bool cardReadDma() {
 
 		waitForArm7();
 		// -------------------------------------
-		#endif
+		#endif*/
     
     
         isDma = false;

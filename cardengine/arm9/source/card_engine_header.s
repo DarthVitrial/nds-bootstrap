@@ -18,6 +18,9 @@
 .global dsiMode
 .global enableExceptionHandler
 .global consoleModel
+.global irqTable
+.global fifoHandler
+.global intr_fifo_orig_return
 
 #define ICACHE_SIZE	0x2000
 #define DCACHE_SIZE	0x1000
@@ -45,6 +48,8 @@ dsiMode:
 enableExceptionHandler:
 	.word	0x00000000
 consoleModel:
+	.word	0x00000000
+irqTable:
 	.word	0x00000000
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

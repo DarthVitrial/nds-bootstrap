@@ -37,6 +37,10 @@ static u32* hookInterruptHandler(const u32* start, size_t size) {
         dbg_printf("ERR_HOOK_9 : handlerStartSig\n");
 		return NULL;
 	}
+    
+    dbg_printf("handlerStartSig\n");
+    dbg_hexa(addr);
+    dbg_printf("\n");
 
 	// Find the end of the handler
 	addr = findOffset(
@@ -47,6 +51,12 @@ static u32* hookInterruptHandler(const u32* start, size_t size) {
         dbg_printf("ERR_HOOK_9 : handlerEndSig\n");
 		return NULL;
 	}
+    
+    
+    
+    dbg_printf("handlerEndSig\n");
+    dbg_hexa(addr);
+    dbg_printf("\n");
 
 	// Now find the IRQ vector table
 	// Make addr point to the vector table address pointer within the IRQ handler
@@ -54,12 +64,20 @@ static u32* hookInterruptHandler(const u32* start, size_t size) {
 
 	// Use relative and absolute addresses to find the location of the table in RAM
 	u32 tableAddr = addr[0];
+    dbg_printf("tableAddr\n");
+    dbg_hexa(tableAddr);
+    dbg_printf("\n");
+    
 	u32 returnAddr = addr[1];
+    dbg_printf("returnAddr\n");
+    dbg_hexa(returnAddr);
+    dbg_printf("\n");
+    
 	u32* actualReturnAddr = addr + 2;
 	u32* actualTableAddr = actualReturnAddr + (tableAddr - returnAddr)/sizeof(u32);
 
 	// The first entry in the table is for the Vblank handler, which is what we want
-	return actualTableAddr;
+	return tableAddr;
 	// 2     LCD V-Counter Match
 }
 
@@ -79,26 +97,54 @@ int hookNdsRetailArm9(
 	ce9->enableExceptionHandler = enableExceptionHandler;
 	ce9->consoleModel           = consoleModel;
     
-    u32* hookLocation = hookInterruptHandler((u32*)ndsHeader->arm9destination, 0x00300000);
+    u32* tableAddr = hookInterruptHandler((u32*)ndsHeader->arm9destination, 0x00300000);
     
-    if (!hookLocation) {
+    if (!tableAddr) {
 		dbg_printf("ERR_HOOK_9\n");
 		return ERR_HOOK;
 	}
     
-    u32* vblankHandler = hookLocation;
+    /*u32* vblankHandler = hookLocation;
     u32* dma0Handler = hookLocation + 8;
     u32* dma1Handler = hookLocation + 9;
     u32* dma2Handler = hookLocation + 10;
     u32* dma3Handler = hookLocation + 11;
     u32* ipcSyncHandler = hookLocation + 16;
-    u32* cardCompletionIrq = hookLocation + 19;
+    u32* cardCompletionIrq = hookLocation + 19;*/
     
-    ce9->intr_fifo_orig_return   = *ipcSyncHandler;
+    ce9->irqTable   = tableAddr;
+    
+    /*dbg_printf("vblankHandler\n");
+    dbg_hexa(vblankHandler);
+    dbg_printf(" : ");   
+    dbg_hexa(*vblankHandler);
+    dbg_printf("\n");
+    
+    dbg_printf("dma0Handler\n");
+    dbg_hexa(dma0Handler);
+    dbg_printf(" : ");   
+    dbg_hexa(*dma0Handler);
+    dbg_printf("\n");
+    
+    dbg_printf("ipcSyncHandler\n");
+    dbg_hexa(ipcSyncHandler);
+    dbg_printf(" : ");   
+    dbg_hexa(*ipcSyncHandler);
+    dbg_printf("\n");
+    
+    dbg_printf("cardCompletionIrq\n");
+    dbg_hexa(cardCompletionIrq);
+    dbg_printf(" : ");   
+    dbg_hexa(*cardCompletionIrq);
+    dbg_printf("\n");
+    
+    dbg_printf("ce9->patches->fifoHandler\n");
+    dbg_hexa(ce9->patches->fifoHandler);
+    dbg_printf("\n");       
     
     if (!ROMinRAM) {
 		*ipcSyncHandler = ce9->patches->fifoHandler;
-	}
+	}*/
 
 	dbg_printf("NO_ERROR_HOOK_9\n");
 	return ERR_NONE;
