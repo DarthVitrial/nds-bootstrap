@@ -19,7 +19,7 @@
 .global enableExceptionHandler
 .global consoleModel
 .global irqTable
-.global fifoHandler
+.global fifoHandlerRef
 .global intr_fifo_orig_return
 
 #define ICACHE_SIZE	0x2000
@@ -83,6 +83,8 @@ thumbPatches:
 .word   cacheFlushRef
 .word   readCachedRef
 .word   0x0
+fifoHandlerRef:
+.word   fifoHandler
 
 @---------------------------------------------------------------------------------
 card_read_arm9:

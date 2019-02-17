@@ -56,7 +56,7 @@ extern u32 enableExceptionHandler;
 extern u32 consoleModel;
 extern u32* irqTable;
 extern u32 intr_fifo_orig_return;
-extern void* fifoHandler;
+extern void* fifoHandlerRef;
 
 extern u32 needFlushDCCache;
 
@@ -137,8 +137,23 @@ static void hookIPC_SYNC(void) {
     if (!IPC_SYNC_hooked) {
         u32* ipcSyncHandler = irqTable + 16;
         intr_fifo_orig_return   = *ipcSyncHandler;
-        *ipcSyncHandler = fifoHandler;
+        *ipcSyncHandler = fifoHandlerRef;
         IPC_SYNC_hooked = true;
+        
+        #ifdef DEBUG
+		// Send a log command for debug purpose
+		// -------------------------------------
+		u32 commandRead = 0x026ff800;
+
+		sharedAddr[0] = irqTable;
+		sharedAddr[1] = ipcSyncHandler;
+		sharedAddr[2] = intr_fifo_orig_return;
+		sharedAddr[3] = fifoHandlerRef;
+		sharedAddr[4] = commandRead;
+
+		waitForArm7();
+		// -------------------------------------
+		#endif
     }
 }
 
